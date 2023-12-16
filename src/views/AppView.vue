@@ -1,25 +1,59 @@
 
 <script setup>
-import { ref } from "vue";
+import router from "@/router";
+import { ref, onMounted } from "vue";
+import { API_URL } from '@/constants';
+import axios from 'axios';
 
-const tasks = ref([
-  {
-    id: 1,
-    title: 'Make App',
-    done: true
-  },
-  {
-    id: 2,
-    title: 'Publish App',
-    done: false
-  }
-]);
+const tasks = ref([]);
 
 const taskTitle = ref('');
 const hasError = ref(false);
+const sending = ref(false);
+const token = ref('');
 
 function checkLogin() {
-  console.log('Checking if you are logged in or not.');
+  const storedToken = sessionStorage.getItem("i_d_a_token");
+
+  if (storedToken) {
+    //Validate token
+    token.value = storedToken;
+    axios.get(API_URL + '/login-status', {
+      headers: {
+        'Authorization': 'Bearer ' + storedToken
+      }
+    })
+      .then(function (response) {
+        // handle success
+        console.log(response);
+      })
+      .catch(function (error) {
+        // handle error
+        router.push({ name: 'home' })
+      })
+
+  } else {
+    router.push({ name: 'home' })
+  }
+}
+
+function getTasks() {
+  axios.get(API_URL + '/tasks', {
+      headers: {
+        'Authorization': 'Bearer ' + token.value
+      }
+    })
+      .then(function ({data}) {
+
+        console.log(data.data);
+        
+        tasks.value = data.data;
+
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
 }
 
 function addTask() {
@@ -30,16 +64,74 @@ function addTask() {
     return;
   }
 
+  sending.value = true;
+
+  axios.post(API_URL + '/tasks', {title: taskTitle.value}, {
+      headers: {
+        'Authorization': 'Bearer ' + token.value
+      }
+    })
+      .then(function ({data}) {
+
+        tasks.value.push(data.data);
+        
+        taskTitle.value = '';
+
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .finally(function(){
+        sending.value = false;
+      })
+
 
 }
 
 function removeTask(id, index) {
   tasks.value.splice(index, 1);
+
+  axios.delete(API_URL + '/tasks/' + id, {
+      headers: {
+        'Authorization': 'Bearer ' + token.value
+      }
+    })
+      .then(function (response) {
+
+        console.log(response);
+
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
 }
 
 function markTaskAs(id, index, value) {
-  
+
+  axios.patch(API_URL + '/tasks/' + id, {status: value}, {
+      headers: {
+        'Authorization': 'Bearer ' + token.value
+      }
+    })
+      .then(function (response) {
+
+        console.log(response);
+
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+
 }
+
+
+onMounted(() => {
+  checkLogin();
+  getTasks();
+})
 
 </script>
 
@@ -59,7 +151,8 @@ function markTaskAs(id, index, value) {
       <tbody>
         <tr v-for="(task, index) in tasks" :key="task.id">
           <th scope="row">
-            <input class="form-check-input" type="checkbox" v-model="task.done" :id="'task-' + task.id" @change="markTaskAs(task.id, index, task.done)">
+            <input class="form-check-input" type="checkbox" v-model="task.done" :id="'task-' + task.id"
+              @change="markTaskAs(task.id, index, task.done)">
             <label class="form-check-label ps-2" :for="'task-' + task.id">
               <span :class="task.done ? 'text-decoration-line-through' : ''">
                 Task#{{ task.id }}
@@ -71,7 +164,8 @@ function markTaskAs(id, index, value) {
 
 
             <span :class="task.done ? 'text-decoration-line-through' : ''">
-              {{ task.title }}
+              {{ task.title }} <br>
+              <small class="text-muted">{{ task.created_at }}</small>
             </span>
           </td>
           <td>
@@ -89,7 +183,9 @@ function markTaskAs(id, index, value) {
             </div>
           </td>
           <td>
-            <button type="button" class="btn btn-primary" @click="addTask">Add Task</button>
+            <button type="button" class="btn btn-primary" @click="addTask" :disabled="sending">
+              {{ sending ? 'Creating...' : 'Add Task' }}
+            </button>
           </td>
         </tr>
       </tfoot>

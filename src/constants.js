@@ -1,1 +1,1 @@
-export const API_URL = 'http://localhost/api'; //Use process.env.API_URL in production
+export const API_URL = 'http://iad.local/api/v1'; //Use process.env.API_URL in production

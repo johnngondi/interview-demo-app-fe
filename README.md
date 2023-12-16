@@ -10,7 +10,7 @@ npm install
 
 ### Change Server URL
 In `src/constants.js` change the `API_URL` value to the API's server URL.
-> For better configuration use an environment value there.
+> For easier configuration use an environment value there.
 
 ### Compile and Hot-Reload for Development
 

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { API_URL } from '@/constants';
+import axios from 'axios';
 
 const loggedIn = ref(false);
 const loggedInAs = ref('');
@@ -10,25 +11,72 @@ const password = ref('');
 
 function checkLogin() {
 
-  console.log(API_URL);
+  const token = sessionStorage.getItem("i_d_a_token");
 
-  let data = sessionStorage.getItem("i_d_a_user");
-
-  if (data) {
+  if (token) {
     loggedIn.value = true;
-    loggedInAs.value = data.name
+    loggedInAs.value = sessionStorage.getItem("i_d_a_user")
+
+    //Validate token
+    axios.get(API_URL + '/login-status', {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    })
+      .then(function (response) {
+        // handle success
+        console.log(response);
+      })
+      .catch(function (error) {
+        // handle error
+        logoutUser()
+      })
+
   }
 }
 
 function loginUser() {
 
+  axios.post(API_URL + '/login',
+    {
+      email: email.value,
+      password: password.value
+    })
+    .then(function ({ data }) {
+      // handle success
+      sessionStorage.setItem("i_d_a_user", data.data.user.name);
+      sessionStorage.setItem("i_d_a_token", data.data.token);
 
 
-  console.log(email.value, password.value);
+      loggedIn.value = true;
+
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
+
 }
 
 function logoutUser() {
-  sessionStorage.removeItem('i_d_a_user');
+  const token = sessionStorage.getItem("i_d_a_token");
+
+  axios.post(API_URL + '/logout', {}, {
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  })
+    .then(function (response) {
+      // handle success
+      console.log(response);
+      sessionStorage.removeItem('i_d_a_user');
+      sessionStorage.removeItem('i_d_a_token');
+      loggedIn.value = false;
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
 }
 
 onMounted(() => {
