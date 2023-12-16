@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { API_URL } from '@/constants';
 
 const loggedIn = ref(false);
 const loggedInAs = ref('');
@@ -8,15 +9,21 @@ const email = ref('');
 const password = ref('');
 
 function checkLogin() {
+
+  console.log(API_URL);
+
   let data = sessionStorage.getItem("i_d_a_user");
 
-  if(data){
+  if (data) {
     loggedIn.value = true;
     loggedInAs.value = data.name
   }
 }
 
 function loginUser() {
+
+
+
   console.log(email.value, password.value);
 }
 
@@ -42,7 +49,7 @@ onMounted(() => {
             Manage Tasks
           </RouterLink>
 
-          or 
+          or
 
           <button type="button" @click="logoutUser" class="btn btn-danger btn-xs">Logout</button>
 

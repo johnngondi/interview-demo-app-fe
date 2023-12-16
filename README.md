@@ -1,20 +1,16 @@
-# interview-demo
+# Interview Demo App
 
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+This app will help you manage Tasks. It is built with Vue and Vite.
 
 ## Project Setup
 
 ```sh
 npm install
 ```
+
+### Change Server URL
+In `src/constants.js` change the `API_URL` value to the API's server URL.
+> For better configuration use an environment value there.
 
 ### Compile and Hot-Reload for Development
 

@@ -1,0 +1,1 @@
+export const API_URL = 'http://localhost/api'; //Use process.env.API_URL in production
