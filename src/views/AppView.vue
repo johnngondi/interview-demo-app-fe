@@ -9,6 +9,7 @@ const tasks = ref([]);
 
 const taskTitle = ref('');
 const hasError = ref(false);
+const canCreateTask = ref(false);
 const sending = ref(false);
 const token = ref('');
 
@@ -23,9 +24,10 @@ function checkLogin() {
         'Authorization': 'Bearer ' + storedToken
       }
     })
-      .then(function (response) {
+      .then(function ({data}) {
         // handle success
-        console.log(response);
+        canCreateTask.value = data.can_create_tasks;
+
       })
       .catch(function (error) {
         // handle error
@@ -174,7 +176,7 @@ onMounted(() => {
         </tr>
       </tbody>
 
-      <tfoot>
+      <tfoot v-if="canCreateTask">
         <tr>
           <td colspan="2">
             <input type="text" class="form-control" v-model="taskTitle" id="taskTitle" placeholder="Enter Task title">

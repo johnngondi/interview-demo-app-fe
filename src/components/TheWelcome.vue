@@ -61,6 +61,10 @@ function loginUser() {
 function logoutUser() {
   const token = sessionStorage.getItem("i_d_a_token");
 
+  sessionStorage.removeItem('i_d_a_user');
+  sessionStorage.removeItem('i_d_a_token');
+  loggedIn.value = false;
+
   axios.post(API_URL + '/logout', {}, {
     headers: {
       'Authorization': 'Bearer ' + token
@@ -69,9 +73,6 @@ function logoutUser() {
     .then(function (response) {
       // handle success
       console.log(response);
-      sessionStorage.removeItem('i_d_a_user');
-      sessionStorage.removeItem('i_d_a_token');
-      loggedIn.value = false;
     })
     .catch(function (error) {
       // handle error
